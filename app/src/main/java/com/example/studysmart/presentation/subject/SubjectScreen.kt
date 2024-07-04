@@ -47,12 +47,40 @@ import com.example.studysmart.presentation.components.CountCard
 import com.example.studysmart.presentation.components.DeleteDialog
 import com.example.studysmart.presentation.components.studySessionsList
 import com.example.studysmart.presentation.components.tasksList
+import com.example.studysmart.presentation.destinations.TaskScreenRouteDestination
+import com.example.studysmart.presentation.task.TaskScreenNavArgs
 import com.example.studysmart.sessions
 import com.example.studysmart.tasks
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 
+data class SubjectScreenNavArgs(
+    val subjectId: Int
+)
+@Destination(navArgsDelegate = SubjectScreenNavArgs::class)
+@Composable
+fun SubjectScreenRoute(
+    navigator: DestinationsNavigator
+){
+    SubjectScreen(
+        onBackButtonClick = {navigator.navigateUp()},
+        onAddTaskButtonClick = {
+            val navArg = TaskScreenNavArgs(taskId = null, subjectId = -1)
+            navigator.navigate(TaskScreenRouteDestination(navArgs = navArg))
+        },
+        onTaskCardClick = {taskId ->
+            val navArg = TaskScreenNavArgs(taskId = taskId, subjectId = null)
+            navigator.navigate(TaskScreenRouteDestination(navArgs = navArg))
+        }
+    )
+}
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SubjectScreen(){
+private fun SubjectScreen(
+    onBackButtonClick: () -> Unit,
+    onAddTaskButtonClick: () -> Unit,
+    onTaskCardClick: (Int?) -> Unit
+){
 
     val listState = rememberLazyListState()
     val isFABExpanded by remember {
@@ -84,8 +112,8 @@ fun SubjectScreen(){
     )
     DeleteDialog(
         isOpen = isDeleteSubjectDialogOpen,
-        title = "Delete Subject",
-        bodyText = "Are you sure, you want to delete this subject? All related "+
+        title = "Delete Exercise",
+        bodyText = "Are you sure, you want to delete this exercise? All related "+
                 "tasks and study session will be permanently removed. This action can not be undone",
         onDismissRequest = { isDeleteSubjectDialogOpen = false},
         onConfirmButtonClick = {
@@ -107,7 +135,7 @@ fun SubjectScreen(){
         topBar = {
             SubjectScreenTopBar(
                 title = "Fretboard",
-                onBackButtonClick = {},
+                onBackButtonClick = onBackButtonClick,
                 onDeleteButtonClick = {isDeleteSubjectDialogOpen = true},
                 onEditButtonClick = {isEditSubjectDialogOpen = true},
                 scrollBehavior = scrollBehavior
@@ -115,7 +143,7 @@ fun SubjectScreen(){
         },
         floatingActionButton = {   
             ExtendedFloatingActionButton(
-                onClick = { /*TODO*/ },
+                onClick = onAddTaskButtonClick,
                 icon = { Icon(imageVector = Icons.Default.Add, contentDescription = "Add")},
                 text = { Text(text = "Add Task")},
                 expanded = isFABExpanded
@@ -144,7 +172,7 @@ fun SubjectScreen(){
                         "Click the + button to add new task.",
                 tasks =  tasks,
                 onCheckboxClick = {},
-                onTaskCardClick = {}
+                onTaskCardClick = onTaskCardClick
             )
             item {
                 Spacer(modifier = Modifier.height(20.dp))
@@ -155,7 +183,7 @@ fun SubjectScreen(){
                         "Click the check box on completion of task.",
                 tasks =  tasks,
                 onCheckboxClick = {},
-                onTaskCardClick = {}
+                onTaskCardClick = onTaskCardClick
             )
             item {
                 Spacer(modifier = Modifier.height(20.dp))
@@ -197,12 +225,12 @@ private fun SubjectScreenTopBar(
         actions = {
             IconButton(onClick = onDeleteButtonClick) {
                 Icon(imageVector = Icons.Default.Delete,
-                    contentDescription = "Delete Subject"
+                    contentDescription = "Delete Exercise"
                 )
             }
             IconButton(onClick = onEditButtonClick) {
                 Icon(imageVector = Icons.Default.Edit,
-                    contentDescription = "Edit Subject"
+                    contentDescription = "Edit Exercise"
                 )
             }
         }
@@ -226,13 +254,13 @@ private fun SubjectOverviewSection(
     ){
         CountCard(
             modifier = Modifier.weight(1f),
-            headingText = "Goal Study Hours",
+            headingText = "Goal Practice Hours",
             count = goalHours
         )
         Spacer(modifier = Modifier.width(10.dp))
         CountCard(
             modifier = Modifier.weight(1f),
-            headingText = "Study Hours",
+            headingText = "Practice Hours",
             count = studiedHours
         )
         Spacer(modifier = Modifier.width(10.dp))

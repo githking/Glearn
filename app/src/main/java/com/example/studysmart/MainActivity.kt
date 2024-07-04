@@ -8,10 +8,9 @@ import androidx.annotation.RequiresApi
 import com.example.studysmart.domain.model.Session
 import com.example.studysmart.domain.model.Subject
 import com.example.studysmart.domain.model.Task
-import com.example.studysmart.presentation.dashboard.DashboardScreen
-import com.example.studysmart.presentation.subject.SubjectScreen
-import com.example.studysmart.presentation.task.TaskScreen
+import com.example.studysmart.presentation.NavGraphs
 import com.example.studysmart.presentation.theme.StudySmartTheme
+import com.ramcosta.composedestinations.DestinationsNavHost
 
 class MainActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.M)
@@ -19,7 +18,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             StudySmartTheme {
-                TaskScreen()
+                DestinationsNavHost(navGraph = NavGraphs.root)
             }
         }
     }
@@ -41,8 +40,7 @@ val tasks = listOf(
         isComplete = false,
         taskSubjectId = 0,
         taskId = 1
-    ),
-    Task(
+    ), Task(
         title = "Natural notes",
         description = "",
         dueDate = 0L,

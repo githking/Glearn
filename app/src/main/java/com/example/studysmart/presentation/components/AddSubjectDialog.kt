@@ -35,7 +35,7 @@ import com.example.studysmart.domain.model.Subject
 @Composable
 fun AddSubjectDialog(
     isOpen: Boolean,
-    title: String = "Add/Update Subject",
+    title: String = "Add/Update Exercise",
     selectedColors: List<Color>,
     subjectName: String,
     goalHours: String,
@@ -49,13 +49,13 @@ fun AddSubjectDialog(
     var goalHoursError by rememberSaveable { mutableStateOf<String?>(null) }
 
     subjectNameError = when {
-        subjectName.isBlank() -> "Please enter subject name."
+        subjectName.isBlank() -> "Please enter exercise name."
         subjectName.length < 2 -> "Subject name is too short."
         subjectName.length > 20 -> "Subject name is too long."
         else -> null
     }
     goalHoursError = when {
-        subjectName.isBlank() -> "Please enter goal study hours."
+        subjectName.isBlank() -> "Please enter goal practice hours."
         goalHours.toFloatOrNull() == null -> "Invalid number."
         goalHours.toFloat() < 1f -> "Please set at least 1 hour."
         goalHours.toFloat() > 1000f -> "Please set a maximum of 1000 hours."
@@ -93,7 +93,7 @@ fun AddSubjectDialog(
                     OutlinedTextField(
                         value = subjectName,
                         onValueChange = onSubjectNameChange,
-                        label = {Text(text = "Subject Name")},
+                        label = {Text(text = "Exercise Name")},
                         singleLine = true,
                         isError = subjectNameError != null && subjectName.isNotBlank(),
                         supportingText = {Text(text = subjectNameError.orEmpty())}
@@ -102,7 +102,7 @@ fun AddSubjectDialog(
                     OutlinedTextField(
                         value = goalHours,
                         onValueChange = onGoalHoursChange,
-                        label = {Text(text = "Goal Study Hours")},
+                        label = {Text(text = "Goal Practice Hours")},
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         isError = goalHoursError != null && goalHours.isNotBlank(),

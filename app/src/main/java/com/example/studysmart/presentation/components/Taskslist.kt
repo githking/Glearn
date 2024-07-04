@@ -81,7 +81,7 @@ private fun TaskCard(
     onClick: () -> Unit
 ){
     ElevatedCard(
-        modifier = modifier.clickable { onClick }
+        modifier = modifier.clickable { onClick() }
     ) {
         Row(
             modifier = Modifier
