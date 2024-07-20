@@ -93,11 +93,12 @@ class DashboardViewModel @Inject constructor(
                     it.copy(subjectCardColors = event.colors)
                 }
             }
-            DashboardEvent.DeleteSession -> {}
+            DashboardEvent.SaveSubject -> saveSubject()
+            DashboardEvent.DeleteSession -> deleteSession()
             is DashboardEvent.OnTaskIsCompleteChange -> {
                 updateTask(event.task)
             }
-            DashboardEvent.SaveSubject -> saveSubject()
+
         }
     }
 
@@ -146,6 +147,27 @@ class DashboardViewModel @Inject constructor(
                     SnackbarEvent.ShowSnackbar(
                     "Couldn't save subject ${e.message}",
                         SnackbarDuration.Long
+                    )
+                )
+            }
+        }
+    }
+    private fun deleteSession(){
+        viewModelScope.launch {
+            try {
+                state.value.session?.let {
+                    sessionRepository.deleteSession(it)
+                }
+                _snackbarEventFLow.emit(
+                    SnackbarEvent.ShowSnackbar(
+                        "Session deleted Successfully"
+                    )
+                )
+            }catch (e: Exception){
+                _snackbarEventFLow.emit(
+                    SnackbarEvent.ShowSnackbar(
+                        "Couldn't delete session ${e.message}",
+                        duration = SnackbarDuration.Long
                     )
                 )
             }

@@ -57,6 +57,7 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kotlin.concurrent.timer
 import kotlin.time.DurationUnit
 
 @Destination
@@ -115,6 +116,17 @@ private fun SessionScreen(
             }
         }
     }
+    
+    LaunchedEffect(key1 = state.subjects) {
+        val subjectId = timerService.subjectId.value
+        onEvent(
+            SessionEvent.UpdateSubjectIdAndRelatedSubject(
+                subjectId = subjectId,
+                relatedToSubject = state.subjects.find{ it.subjectId == subjectId }?.name
+            )
+        )
+        
+    }
 
 
     SubjectListBottomSheet(
@@ -169,7 +181,8 @@ private fun SessionScreen(
                         .fillMaxWidth()
                         .padding(horizontal = 12.dp),
                     relatedToSubject = state.relatedToSubject ?: "",
-                    selectSubjectButtonClick = { isBottomSheetOpen = true }
+                    selectSubjectButtonClick = { isBottomSheetOpen = true },
+                    seconds = seconds
                 )
             }
             item {
@@ -178,12 +191,17 @@ private fun SessionScreen(
                         .fillMaxWidth()
                         .padding(12.dp),
                     startButtonClick = {
-                        ServiceHelper.triggerForegroundService(
-                            context = context,
-                            action = if(currentTimerState == TimerState.STARTED){
-                                ACTION_SERVICE_STOP
-                            }else ACTION_SERVICE_START
-                        )
+                        if (state.subjectId != null && state.relatedToSubject != null) {
+                            ServiceHelper.triggerForegroundService(
+                                context = context,
+                                action = if (currentTimerState == TimerState.STARTED) {
+                                    ACTION_SERVICE_STOP
+                                } else ACTION_SERVICE_START
+                            )
+                            timerService.subjectId.value = state.subjectId
+                        }else {
+                            onEvent(SessionEvent.NotifyToUpdateSubject)
+                        }
                     },
                     cancelButtonClick = {
                         ServiceHelper.triggerForegroundService(
@@ -193,10 +211,12 @@ private fun SessionScreen(
                     },
                     finishButtonClick = {
                         val duration = timerService.duration.toLong(DurationUnit.SECONDS)
-                        ServiceHelper.triggerForegroundService(
-                            context = context,
-                            action = ACTION_SERVICE_CANCEL,
-                        )
+                        if(duration >= 50) {
+                            ServiceHelper.triggerForegroundService(
+                                context = context,
+                                action = ACTION_SERVICE_CANCEL,
+                            )
+                        }
                         onEvent(SessionEvent.SaveSession(duration))
                     },
                     timerState = currentTimerState,
@@ -289,7 +309,8 @@ private fun TimerSection(
 private fun RelatedToSubjectSection(
     modifier: Modifier,
     relatedToSubject: String,
-    selectSubjectButtonClick: () -> Unit
+    selectSubjectButtonClick: () -> Unit,
+    seconds: String
 ) {
     Column(modifier = modifier) {
         Text(
@@ -305,7 +326,10 @@ private fun RelatedToSubjectSection(
                 text = relatedToSubject,
                 style = MaterialTheme.typography.bodyLarge
             )
-            IconButton(onClick = selectSubjectButtonClick) {
+            IconButton(
+                onClick = selectSubjectButtonClick,
+                enabled = seconds == "00"
+                ) {
                 Icon(
                     imageVector = Icons.Default.ArrowDropDown,
                     contentDescription = "Select Exercise"
