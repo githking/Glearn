@@ -22,8 +22,8 @@ interface TaskDao {
     suspend fun getTaskById(taskId: Int): Task?
 
     @Query("SELECT * FROM Task WHERE taskSubjectId = :subjectId")
-    suspend fun getTaskForSubject(subjectId: Int): Flow<List<Task>>
+    fun getTaskForSubject(subjectId: Int): Flow<List<Task>>
 
     @Query("SELECT * FROM Task")
-    fun getAllSubjects(): Flow<List<Task>>
+    fun getAllTasks(): Flow<List<Task>>
 }

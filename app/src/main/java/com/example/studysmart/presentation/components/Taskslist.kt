@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import com.example.studysmart.R
 import com.example.studysmart.domain.model.Task
 import com.example.studysmart.util.Priority
+import com.example.studysmart.util.changeMillisToDateString
 
 
 fun LazyListScope.tasksList(
@@ -92,7 +93,7 @@ private fun TaskCard(
             TaskCheckBox(
                 isComplete = task.isComplete ,
                 borderColor = Priority.fromInt(task.priority).color,
-                onCheckBoxClick = {}
+                onCheckBoxClick = onCheckboxClick
             )
             Column {
                 Text(
@@ -106,7 +107,7 @@ private fun TaskCard(
                 )
                 Spacer(modifier=Modifier.height(4.dp))
                 Text(
-                    text = "${task.dueDate}",
+                    text = task.dueDate.changeMillisToDateString(),
                     style = MaterialTheme.typography.bodySmall
                 )
             }
